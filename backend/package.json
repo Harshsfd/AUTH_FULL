@@ -1,5 +1,5 @@
 {
-  "name": "mern-auth-backend",
+  "name": "AUTH_FULL",
   "version": "1.0.0",
   "type": "module",
   "main": "server.js",
