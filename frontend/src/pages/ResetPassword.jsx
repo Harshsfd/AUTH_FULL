@@ -1,44 +1,33 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import InputField from '../components/InputField';
+import { resetPassword } from '../api/authApi';
 
-function ResetPassword() {
-  const { token } = useParams(); // ← URL se token
+const ResetPassword = () => {
+  const { token } = useParams();
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URI}/api/auth/reset-password`,
-        { token, password } // ← token backend ko bhejna zaruri hai
-      );
+      const res = await resetPassword(token, { password });
       setMessage(res.data.message);
-      setTimeout(() => navigate("/login"), 2000);
+      navigate('/'); // redirect to login after reset
     } catch (err) {
-      setMessage("Reset failed.");
+      setMessage(err.response?.data?.message || 'Reset failed');
     }
   };
 
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <h2>Reset Password</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="password"
-          placeholder="New password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Reset</button>
-      </form>
       {message && <p>{message}</p>}
-    </div>
+      <InputField label="New Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      <button type="submit">Reset Password</button>
+    </form>
   );
-}
+};
 
 export default ResetPassword;
