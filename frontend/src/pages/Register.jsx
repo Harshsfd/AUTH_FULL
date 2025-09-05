@@ -1,42 +1,39 @@
-import React, { useState } from "react";
-import { registerUser } from "../api/authApi";
-import { Link } from "react-router-dom";
-import InputField from "../components/InputField";
+import React, { useState, useContext } from 'react';
+import InputField from '../components/InputField';
+import { registerUser } from '../api/authApi';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-export default function Register() {
-  const [form, setForm] = useState({ name: "", email: "", password: "", mobile: "" });
-  const [msg, setMsg] = useState("");
-  const [loading, setLoading] = useState(false);
+const Register = () => {
+  const { setUser, setToken } = useContext(AuthContext);
+  const [form, setForm] = useState({ name: '', email: '', password: '', mobile: '' });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const onSubmit = async (e) => {
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMsg("");
-    setLoading(true);
     try {
       const res = await registerUser(form);
-      setMsg(res.data.message || "Registered. Check your email for verification.");
+      setUser(res.data.user);
+      setToken(res.data.token);
+      navigate('/dashboard');
     } catch (err) {
-      setMsg(err.response?.data?.message || "Registration failed.");
-    } finally {
-      setLoading(false);
+      setError(err.response?.data?.message || 'Registration failed');
     }
   };
 
   return (
-    <div>
-      <h2>Create account</h2>
-      <form onSubmit={onSubmit}>
-        <InputField name="name" label="Full name" value={form.name} onChange={onChange} placeholder="John Doe" required />
-        <InputField name="email" type="email" label="Email" value={form.email} onChange={onChange} placeholder="you@example.com" required />
-        <InputField name="mobile" label="Mobile (optional)" value={form.mobile} onChange={onChange} placeholder="9876543210" />
-        <InputField name="password" type="password" label="Password" value={form.password} onChange={onChange} placeholder="Choose a strong password" required />
-        <button type="submit" disabled={loading}>{loading ? "Registering…" : "Register"}</button>
-      </form>
-
-      <p>{msg}</p>
-      <p>Already registered? <Link to="/login">Login</Link></p>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <h2>Register</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <InputField label="Full Name" name="name" type="text" value={form.name} onChange={handleChange} />
+      <InputField label="Email" name="email" type="email" value={form.email} onChange={handleChange} />
+      <InputField label="Mobile" name="mobile" type="text" value={form.mobile} onChange={handleChange} />
+      <InputField label="Password" name="password" type="password" value={form.password} onChange={handleChange} />
+      <button type="submit">Register</button>
+    </form>
   );
-}
+};
+
+export default Register;
