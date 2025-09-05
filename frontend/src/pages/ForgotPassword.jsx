@@ -1,28 +1,29 @@
-import React, { useState } from "react";
-import { forgotPassword } from "../api/authApi";
+import React, { useState } from 'react';
+import InputField from '../components/InputField';
+import { forgotPassword } from '../api/authApi';
 
-export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
-  const [msg, setMsg] = useState("");
+const ForgotPassword = () => {
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
 
-  const onSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await forgotPassword({ email });
-      setMsg(res.data.message);
+      setMessage(res.data.message);
     } catch (err) {
-      setMsg(err.response?.data?.message || "Error sending reset link.");
+      setMessage(err.response?.data?.message || 'Error');
     }
   };
 
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <h2>Forgot Password</h2>
-      <form onSubmit={onSubmit}>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email" required />
-        <button type="submit">Send Reset Link</button>
-      </form>
-      <p>{msg}</p>
-    </div>
+      {message && <p>{message}</p>}
+      <InputField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <button type="submit">Send Reset Link</button>
+    </form>
   );
-}
+};
+
+export default ForgotPassword;
